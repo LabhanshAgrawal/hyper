@@ -260,7 +260,7 @@
     "styled-jsx": "3.2.2",
     "stylis": "3.5.4",
     "uuid": "3.1.0",
-    "webpack-cli": "3.3.7",
+    "webpack-cli": "3.3.9",
     "xterm": "~4.1.0",
     "xterm-addon-fit": "^0.2.1",
     "xterm-addon-search": "^0.2.1",
