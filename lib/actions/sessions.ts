@@ -44,7 +44,7 @@ export function requestSession() {
         const {ui} = getState();
         // the cols and rows from preview session maybe not accurate. so remove.
         const {/*cols, rows,*/ cwd} = ui;
-        rpc.emit('new', {cwd});
+        rpc.emit('new tab', {cwd});
       }
     });
   };

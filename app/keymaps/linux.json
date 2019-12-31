@@ -12,6 +12,7 @@
   "window:zoom": "ctrl+shift+alt+m",
   "window:toggleFullScreen": "f11",
   "window:close": "ctrl+shift+q",
+  "window:reopenLastSession": "ctrl+shift+r",
   "tab:new": "ctrl+shift+t",
   "tab:next": [
     "ctrl+shift+]",

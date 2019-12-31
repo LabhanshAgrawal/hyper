@@ -78,8 +78,10 @@ rpc.on('session add', (data) => {
 
 rpc.on('session data', (d: string) => {
   // the uid is a uuid v4 so it's 36 chars long
-  const uid = d.slice(0, 36);
-  const data = d.slice(36);
+  console.log(d);
+  const d2 = typeof d === 'string' ? d : d.data;
+  const uid = d2.slice(0, 36);
+  const data = d2.slice(36);
   store_.dispatch(sessionActions.addSessionData(uid, data));
 });
 
@@ -157,6 +159,14 @@ rpc.on('session search close', () => {
 
 rpc.on('termgroup add req', ({activeUid}) => {
   store_.dispatch(termGroupActions.requestTermGroup(activeUid));
+});
+
+rpc.on('tab restore', ({tab}) => {
+  store_.dispatch(termGroupActions.restoreTab(tab));
+});
+
+rpc.on('pane restore', ({uid, pane}) => {
+  store_.dispatch(termGroupActions.restorePane(uid, pane));
 });
 
 rpc.on('split request horizontal', ({activeUid}) => {

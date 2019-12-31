@@ -27,23 +27,16 @@ import * as AppMenu from './menus/menu';
 import {newWindow} from './ui/window';
 import * as windowUtils from './utils/window-utils';
 
-const windowSet = new Set<BrowserWindow>([]);
+import * as windowSet from './win/windowSet';
 
 // expose to plugins
 app.config = config;
 app.plugins = plugins;
-app.getWindows = () => new Set([...windowSet]); // return a clone
+app.getWindows = () => windowSet.gets();
 
 // function to retrieve the last focused window in windowSet;
 // added to app object in order to expose it to plugins.
-app.getLastFocusedWindow = () => {
-  if (!windowSet.size) {
-    return null;
-  }
-  return Array.from(windowSet).reduce((lastWindow, win) => {
-    return win.focusTime > lastWindow.focusTime ? win : lastWindow;
-  });
-};
+app.getLastFocusedWindow = () => windowSet.lastFocused();
 
 console.log('Disabling Chromium GPU blacklist');
 app.commandLine.appendSwitch('ignore-gpu-blacklist');
@@ -145,17 +138,20 @@ app.on('ready', () =>
         return hwin;
       }
 
-      // when opening create a new window
-      createWindow();
-
       // expose to plugins
       app.createWindow = createWindow;
+
+      // set up record
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const record = require('./win/record');
+      // restore previous saved state
+      record.load();
 
       // mac only. when the dock icon is clicked
       // and we don't have any active windows open,
       // we open one
       app.on('activate', () => {
-        if (!windowSet.size) {
+        if (!windowSet.size()) {
           createWindow();
         }
       });

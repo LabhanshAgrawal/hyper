@@ -15,6 +15,7 @@
     "ctrl+shift+q",
     "alt+f4"
   ],
+  "window:reopenLastSession": "ctrl+shift+r",
   "tab:new": "ctrl+shift+t",
   "tab:jump:prefix": "ctrl",
   "pane:next": "ctrl+pageup",

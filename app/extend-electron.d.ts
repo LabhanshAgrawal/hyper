@@ -1,4 +1,5 @@
 import type {Server} from './rpc';
+import Tab from './win/tab';
 
 declare module 'electron' {
   interface App {
@@ -21,5 +22,11 @@ declare module 'electron' {
     focusTime: number;
     clean: () => void;
     rpc: Server;
+    tabs: Set<Tab>;
+    onDeleteTab: (tab: Tab) => void;
+    restoreTabs: (tabs: Tab[]) => void;
+    onTab: (opts: any, recorded: any) => void;
+    reopenLastSession: () => void;
+    record: (fn: any) => void;
   }
 }

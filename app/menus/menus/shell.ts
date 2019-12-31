@@ -54,6 +54,15 @@ export default (
         label: isMac ? 'Close Window' : 'Quit',
         role: 'close',
         accelerator: commandKeys['window:close']
+      },
+      {
+        label: 'Repoen last closed session',
+        accelerator: commandKeys['window:reopenLastSession'],
+        click(item, focusedWindow) {
+          if (focusedWindow) {
+            focusedWindow.reopenLastSession();
+          }
+        }
       }
     ]
   };

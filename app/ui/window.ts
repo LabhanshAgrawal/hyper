@@ -16,6 +16,10 @@ import {execCommand} from '../commands';
 import {setRendererType, unsetRendererType} from '../utils/renderer-utils';
 import {decorateSessionOptions, decorateSessionClass} from '../plugins';
 
+import Tab from '../win/tab';
+import * as record from '../win/record';
+import {homedir} from 'os';
+
 export function newWindow(
   options_: BrowserWindowConstructorOptions,
   cfg: any,
@@ -49,6 +53,8 @@ export function newWindow(
 
   app.plugins.onWindowClass(window);
   window.uid = classOpts.uid;
+
+  window.tabs = new Set<Tab>([]);
 
   const rpc = createRPC(window);
   const sessions = new Map<string, Session>();
@@ -143,30 +149,41 @@ export function newWindow(
     return {session, options};
   }
 
-  rpc.on('new', (extraOptions) => {
-    const {session, options} = createSession(extraOptions);
+  rpc.on(
+    'new tab',
+    ({
+      rows = 40,
+      cols = 100,
+      cwd = process.argv[1] && isAbsolute(process.argv[1]) ? process.argv[1] : homedir(),
+      tab
+    }) => {
+      const shell2 = cfg.shell;
+      const shellArgs = cfg.shellArgs && Array.from(cfg.shellArgs);
+      window.onTab({rows, cols, cwd, shell: shell2, shellArgs}, tab);
+    }
+  );
 
-    sessions.set(options.uid, session);
-    rpc.emit('session add', {
-      rows: options.rows,
-      cols: options.cols,
-      uid: options.uid,
-      splitDirection: options.splitDirection,
-      shell: session.shell,
-      pid: session.pty ? session.pty.pid : null,
-      activeUid: options.activeUid
-    });
+  rpc.on(
+    'new split',
+    ({
+      rows = 40,
+      cols = 100,
+      cwd = process.argv[1] && isAbsolute(process.argv[1]) ? process.argv[1] : homedir(),
+      splitDirection,
+      activeUid,
+      pane
+    }) => {
+      const shell2 = cfg.shell;
+      const shellArgs = cfg.shellArgs && Array.from(cfg.shellArgs);
 
-    session.on('data', (data: string) => {
-      rpc.emit('session data', data);
-    });
-
-    session.on('exit', () => {
-      rpc.emit('session exit', {uid: options.uid});
-      unsetRendererType(options.uid);
-      sessions.delete(options.uid);
-    });
-  });
+      const activePane = sessions.get(activeUid);
+      activePane.onSplit(
+        {rows, cols, cwd, shell: shell2, shellArgs, splitDirection, activeUid, parent: activePane},
+        window,
+        pane
+      );
+    }
+  );
 
   rpc.on('exit', ({uid}) => {
     const session = sessions.get(uid);
@@ -325,6 +342,55 @@ export function newWindow(
   // Ensure focusTime is set on window open. The focus event doesn't
   // fire from the dock (see bug #583)
   updateFocusTime();
+
+  window.onTab = (opts, recorded) => {
+    let id;
+    if (recorded) {
+      id = recorded.id;
+    }
+    window.tabs.add(
+      new Tab(id, window, (tab: Tab) => {
+        tab.onRoot(opts, recorded);
+      })
+    );
+  };
+
+  window.onDeleteTab = (tab: Tab) => {
+    window.tabs.delete(tab);
+  };
+
+  window.restoreTabs = (tabs: Tab[]) => {
+    tabs.forEach(tab => {
+      window.rpc.emit('tab restore', {tab});
+    });
+  };
+
+  window.reopenLastSession = () => {
+    console.log('reopenLastSession call');
+    const lastSession = record.restore();
+    console.log('lastSession: ', lastSession);
+    if (lastSession) {
+      switch (lastSession.type) {
+        case 'TAB':
+          window.rpc.emit('tab restore', {tab: lastSession});
+          break;
+        case 'PANE':
+          window.rpc.emit('pane restore', {uid: lastSession.parent.uid, pane: lastSession});
+          break;
+        default:
+      }
+    }
+  };
+
+  window.record = fn2 => {
+    const win = {id: window.id, size: window.getSize(), position: window.getPosition(), tabs: [] as any[]};
+    window.tabs.forEach(tab => {
+      tab.record((state: any) => {
+        win.tabs.push(state);
+      });
+    });
+    fn2(win);
+  };
 
   return window;
 }

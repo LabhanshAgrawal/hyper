@@ -19,7 +19,7 @@ function requestSplit(direction: 'VERTICAL' | 'HORIZONTAL') {
         type: SESSION_REQUEST,
         effect: () => {
           const {ui, sessions} = getState();
-          rpc.emit('new', {
+          rpc.emit('new split', {
             splitDirection: direction,
             cwd: ui.cwd,
             activeUid: activeUid ? activeUid : sessions.activeUid
@@ -47,10 +47,46 @@ export function requestTermGroup(activeUid: string) {
       effect: () => {
         const {ui} = getState();
         const {cwd} = ui;
-        rpc.emit('new', {
+        rpc.emit('new tab', {
           isNewGroup: true,
           cwd,
           activeUid
+        });
+      }
+    });
+  };
+}
+
+export function restorePane(uid: string, pane: any) {
+  return (dispatch: HyperDispatch, getState: () => HyperState) => {
+    const {ui} = getState();
+    dispatch({
+      type: TERM_GROUP_REQUEST,
+      effect: () => {
+        rpc.emit('new split', {
+          activeUid: uid,
+          splitDirection: pane.direction,
+          cwd: ui.cwd,
+          pane
+        });
+      }
+    });
+  };
+}
+
+export function restoreTab(tab: any) {
+  return (dispatch: HyperDispatch, getState: () => HyperState) => {
+    const {ui} = getState();
+    const {cols, rows, cwd} = ui;
+    dispatch({
+      type: TERM_GROUP_REQUEST,
+      effect: () => {
+        rpc.emit('new tab', {
+          isNewGroup: true,
+          cols,
+          rows,
+          cwd,
+          tab
         });
       }
     });
