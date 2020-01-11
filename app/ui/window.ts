@@ -10,15 +10,14 @@ import {icon, homeDirectory} from '../config/paths';
 import createRPC from '../rpc';
 import notify from '../notify';
 import fetchNotifications from '../notifications';
-import Session from '../session';
 import contextMenuTemplate from './contextmenu';
 import {execCommand} from '../commands';
-import {setRendererType, unsetRendererType} from '../utils/renderer-utils';
-import {decorateSessionOptions, decorateSessionClass} from '../plugins';
+import {setRendererType} from '../utils/renderer-utils';
 
 import Tab from '../win/tab';
 import * as record from '../win/record';
 import {homedir} from 'os';
+import {allSessions} from '../utils/sessions';
 
 export function newWindow(
   options_: BrowserWindowConstructorOptions,
@@ -57,7 +56,8 @@ export function newWindow(
   window.tabs = new Set<Tab>([]);
 
   const rpc = createRPC(window);
-  const sessions = new Map<string, Session>();
+  allSessions.set(window.uid, new Map());
+  const sessions = allSessions.get(window.uid)!;
 
   const updateBackgroundColor = () => {
     const cfg_ = app.plugins.getDecoratedConfig();
@@ -124,50 +124,19 @@ export function newWindow(
     }
   });
 
-  function createSession(extraOptions: any = {}) {
-    const uid = uuidv4();
-    const extraOptionsFiltered: any = {};
-    Object.keys(extraOptions).forEach((key) => {
-      if (extraOptions[key] !== undefined) extraOptionsFiltered[key] = extraOptions[key];
-    });
-
-    // remove the rows and cols, the wrong value of them will break layout when init create
-    const defaultOptions = Object.assign(
-      {
-        cwd: workingDirectory,
-        splitDirection: undefined,
-        shell: cfg.shell,
-        shellArgs: cfg.shellArgs && Array.from(cfg.shellArgs)
-      },
-      extraOptionsFiltered,
-      {uid}
-    );
-    const options = decorateSessionOptions(defaultOptions);
-    const DecoratedSession = decorateSessionClass(Session);
-    const session = new DecoratedSession(options);
-    sessions.set(uid, session);
-    return {session, options};
-  }
-
   rpc.on(
     'new tab',
-    ({
-      rows = 40,
-      cols = 100,
-      cwd = process.argv[1] && isAbsolute(process.argv[1]) ? process.argv[1] : homedir(),
-      tab
-    }) => {
+    ({rows, cols, cwd = process.argv[1] && isAbsolute(process.argv[1]) ? process.argv[1] : homedir(), tab}) => {
       const shell2 = cfg.shell;
       const shellArgs = cfg.shellArgs && Array.from(cfg.shellArgs);
       window.onTab({rows, cols, cwd, shell: shell2, shellArgs}, tab);
     }
   );
-
   rpc.on(
     'new split',
     ({
-      rows = 40,
-      cols = 100,
+      rows,
+      cols,
       cwd = process.argv[1] && isAbsolute(process.argv[1]) ? process.argv[1] : homedir(),
       splitDirection,
       activeUid,
@@ -176,7 +145,10 @@ export function newWindow(
       const shell2 = cfg.shell;
       const shellArgs = cfg.shellArgs && Array.from(cfg.shellArgs);
 
-      const activePane = sessions.get(activeUid);
+      const activePane = Array.from(
+        Array.from(window.tabs).find((x) => Array.from(x.root.childs).some((y) => y.uid === activeUid))?.root.childs ||
+          []
+      ).find((x) => x.uid === activeUid)!;
       activePane.onSplit(
         {rows, cols, cwd, shell: shell2, shellArgs, splitDirection, activeUid, parent: activePane},
         window,
@@ -208,6 +180,7 @@ export function newWindow(
   });
   rpc.on('data', ({uid, data, escaped}: {uid: string; data: string; escaped: boolean}) => {
     const session = sessions.get(uid);
+    console.log(sessions);
     if (session) {
       if (escaped) {
         const escapedData = session.shell?.endsWith('cmd.exe')
@@ -360,7 +333,7 @@ export function newWindow(
   };
 
   window.restoreTabs = (tabs: Tab[]) => {
-    tabs.forEach(tab => {
+    tabs.forEach((tab) => {
       window.rpc.emit('tab restore', {tab});
     });
   };
@@ -382,9 +355,9 @@ export function newWindow(
     }
   };
 
-  window.record = fn2 => {
+  window.record = (fn2) => {
     const win = {id: window.id, size: window.getSize(), position: window.getPosition(), tabs: [] as any[]};
-    window.tabs.forEach(tab => {
+    window.tabs.forEach((tab) => {
       tab.record((state: any) => {
         win.tabs.push(state);
       });

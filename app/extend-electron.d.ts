@@ -1,5 +1,6 @@
 import type {Server} from './rpc';
 import Tab from './win/tab';
+import _Session from './session';
 
 declare module 'electron' {
   interface App {
@@ -18,7 +19,7 @@ declare module 'electron' {
   // type Server = import('./rpc').Server;
   interface BrowserWindow {
     uid: string;
-    sessions: Map<any, any>;
+    sessions: Map<string, _Session>;
     focusTime: number;
     clean: () => void;
     rpc: Server;

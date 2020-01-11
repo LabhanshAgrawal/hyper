@@ -73,7 +73,7 @@ export default class Pane {
     }
     this.childs.add(
       new Pane(opts, this.rpc, pane => {
-        win.sessions.set(pane.uid, pane);
+        win.sessions.set(pane.uid, pane.session);
         pane.session.on('data', data => {
           this.rpc.emit('session data', {uid: pane.uid, data});
         });

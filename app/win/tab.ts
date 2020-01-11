@@ -4,8 +4,8 @@ import * as record from './record';
 import {BrowserWindow} from 'electron';
 
 export default class Tab {
-  id: any;
-  window: any;
+  id: string;
+  window: BrowserWindow;
   root!: Pane;
   constructor(id: string, window: BrowserWindow, fn: Function) {
     this.id = id;
@@ -34,7 +34,7 @@ export default class Tab {
 
     this.root = new Pane({rows, cols, cwd, shell, shellArgs, uid}, this.window.rpc, (pane: Pane) => {
       pane.root = true;
-      this.window.sessions.set(pane.uid, pane);
+      this.window.sessions.set(pane.uid, pane.session);
       pane.session.on('data', data => {
         this.window.rpc.emit('session data', {uid: pane.uid, data});
       });
