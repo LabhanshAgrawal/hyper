@@ -1,7 +1,7 @@
 /* eslint-disable eslint-comments/disable-enable-pair */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import {app, dialog, BrowserWindow, App} from 'electron';
+import {app, dialog, BrowserWindow, App, ipcMain} from 'electron';
 import {resolve, basename} from 'path';
 import {writeFileSync} from 'fs';
 import Config from 'electron-store';
@@ -449,3 +449,10 @@ export const decorateSessionClass = <T>(Session: T): T => {
 };
 
 export {toDependencies as _toDependencies};
+
+ipcMain.handle('getLoadedPluginVersions', () => getLoadedPluginVersions());
+ipcMain.handle('getPaths', () => getPaths());
+ipcMain.handle('getBasePaths', () => getBasePaths());
+ipcMain.handle('getDeprecatedConfig', () => getDeprecatedConfig());
+ipcMain.handle('getDecoratedConfig', () => getDecoratedConfig());
+ipcMain.handle('getDecoratedKeymaps', () => getDecoratedKeymaps());

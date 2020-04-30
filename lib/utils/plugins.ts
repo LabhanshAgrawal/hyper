@@ -1,7 +1,7 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable eslint-comments/disable-enable-pair */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import {remote} from 'electron';
-// TODO: Should be updates to new async API https://medium.com/@nornagon/electrons-remote-module-considered-harmful-70d69500f31
+import {ipcRenderer} from 'electron';
 
 import {connect as reduxConnect, Options} from 'react-redux';
 import {basename} from 'path';
@@ -24,45 +24,41 @@ import {
   TabsProps,
   TermGroupOwnProps,
   TermProps,
-  Assignable
+  Assignable,
+  pluginsMain
 } from '../hyper';
 import {Middleware} from 'redux';
-import {ObjectTypedKeys} from './object';
-
-// remote interface to `../plugins`
-const plugins = remote.require('./plugins') as typeof import('../../app/plugins');
+import {ObjectTypedKeys, emptyArrays} from './object';
 
 // `require`d modules
-let modules: hyperPlugin[];
+const modules: hyperPlugin[] = [];
 
 // cache of decorated components
-let decorated: Record<string, React.ComponentClass<any>> = {};
+const decorated: Record<string, React.ComponentClass<any>> = {};
 
 // various caches extracted of the plugin methods
-let connectors: {
+const connectors: {
   Terms: {state: any[]; dispatch: any[]};
   Header: {state: any[]; dispatch: any[]};
   Hyper: {state: any[]; dispatch: any[]};
   Notifications: {state: any[]; dispatch: any[]};
+} = {
+  Terms: {state: [], dispatch: []},
+  Header: {state: [], dispatch: []},
+  Hyper: {state: [], dispatch: []},
+  Notifications: {state: [], dispatch: []}
 };
-let middlewares: Middleware[];
-let uiReducers: IUiReducer[];
-let sessionsReducers: ISessionReducer[];
-let termGroupsReducers: ITermGroupReducer[];
-let tabPropsDecorators: any[];
-let tabsPropsDecorators: any[];
-let termPropsDecorators: any[];
-let termGroupPropsDecorators: any[];
-let propsDecorators: {
-  getTermProps: any[];
-  getTabProps: any[];
-  getTabsProps: any[];
-  getTermGroupProps: any[];
+const middlewares: Middleware[] = [];
+const propsDecorators = {
+  getTermProps: [] as any[],
+  getTabProps: [] as any[],
+  getTabsProps: [] as any[],
+  getTermGroupProps: [] as any[]
 };
-let reducersDecorators: {
-  reduceUI: IUiReducer[];
-  reduceSessions: ISessionReducer[];
-  reduceTermGroups: ITermGroupReducer[];
+const reducersDecorators = {
+  reduceUI: [] as IUiReducer[],
+  reduceSessions: [] as ISessionReducer[],
+  reduceTermGroups: [] as ITermGroupReducer[]
 };
 
 // expose decorated component instance to the higher-order components
@@ -188,9 +184,9 @@ Module._load = function _load(path: string) {
   }
 };
 
-const clearModulesCache = () => {
+const clearModulesCache = async () => {
   // the fs locations where user plugins are stored
-  const {path, localPath} = plugins.getBasePaths();
+  const {path, localPath} = await ipcRenderer.invoke('getBasePaths');
 
   // trigger unload hooks
   modules.forEach((mod) => {
@@ -223,41 +219,19 @@ const getPluginVersion = (path: string): string | null => {
   return version;
 };
 
-const loadModules = () => {
+const loadModules = async () => {
   console.log('(re)loading renderer plugins');
-  const paths = plugins.getPaths();
+  const paths = await ipcRenderer.invoke('getPaths');
 
   // initialize cache that we populate with extension methods
-  connectors = {
-    Terms: {state: [], dispatch: []},
-    Header: {state: [], dispatch: []},
-    Hyper: {state: [], dispatch: []},
-    Notifications: {state: [], dispatch: []}
-  };
-  uiReducers = [];
-  middlewares = [];
-  sessionsReducers = [];
-  termGroupsReducers = [];
-  tabPropsDecorators = [];
-  tabsPropsDecorators = [];
-  termPropsDecorators = [];
-  termGroupPropsDecorators = [];
+  emptyArrays(middlewares);
+  emptyArrays(connectors);
+  emptyArrays(reducersDecorators);
+  emptyArrays(propsDecorators);
 
-  propsDecorators = {
-    getTermProps: termPropsDecorators,
-    getTabProps: tabPropsDecorators,
-    getTabsProps: tabsPropsDecorators,
-    getTermGroupProps: termGroupPropsDecorators
-  };
-
-  reducersDecorators = {
-    reduceUI: uiReducers,
-    reduceSessions: sessionsReducers,
-    reduceTermGroups: termGroupsReducers
-  };
-
-  const loadedPlugins = plugins.getLoadedPluginVersions().map((plugin: any) => plugin.name);
-  modules = paths.plugins
+  const loadedPlugins = (await ipcRenderer.invoke('getLoadedPluginVersions')).map((plugin) => plugin.name);
+  emptyArrays(modules);
+  const modules_ = paths.plugins
     .concat(paths.localPlugins)
     .filter((plugin) => loadedPlugins.indexOf(basename(plugin)) !== -1)
     .map((path) => {
@@ -302,15 +276,15 @@ const loadModules = () => {
       }
 
       if (mod.reduceUI) {
-        uiReducers.push(mod.reduceUI);
+        reducersDecorators.reduceUI.push(mod.reduceUI);
       }
 
       if (mod.reduceSessions) {
-        sessionsReducers.push(mod.reduceSessions);
+        reducersDecorators.reduceSessions.push(mod.reduceSessions);
       }
 
       if (mod.reduceTermGroups) {
-        termGroupsReducers.push(mod.reduceTermGroups);
+        reducersDecorators.reduceTermGroups.push(mod.reduceTermGroups);
       }
 
       if (mod.mapTermsState) {
@@ -346,19 +320,19 @@ const loadModules = () => {
       }
 
       if (mod.getTermGroupProps) {
-        termGroupPropsDecorators.push(mod.getTermGroupProps);
+        propsDecorators.getTermGroupProps.push(mod.getTermGroupProps);
       }
 
       if (mod.getTermProps) {
-        termPropsDecorators.push(mod.getTermProps);
+        propsDecorators.getTermProps.push(mod.getTermProps);
       }
 
       if (mod.getTabProps) {
-        tabPropsDecorators.push(mod.getTabProps);
+        propsDecorators.getTabProps.push(mod.getTabProps);
       }
 
       if (mod.getTabsProps) {
-        tabsPropsDecorators.push(mod.getTabsProps);
+        propsDecorators.getTabsProps.push(mod.getTabsProps);
       }
 
       if (mod.onRendererWindow) {
@@ -370,8 +344,9 @@ const loadModules = () => {
       return mod;
     })
     .filter((mod): mod is hyperPlugin => Boolean(mod));
+  modules.push(...modules_);
 
-  const deprecatedPlugins = plugins.getDeprecatedConfig();
+  const deprecatedPlugins = await ipcRenderer.invoke('getDeprecatedConfig');
   Object.keys(deprecatedPlugins).forEach((name) => {
     const {css} = deprecatedPlugins[name];
     if (css.length > 0) {
@@ -383,12 +358,12 @@ const loadModules = () => {
 // load modules for initial decoration
 loadModules();
 
-export function reload() {
-  clearModulesCache();
-  loadModules();
+export async function reload() {
+  await clearModulesCache();
+  await loadModules();
   // trigger re-decoration when components
   // get re-rendered
-  decorated = {};
+  Object.keys(decorated).forEach((key) => delete decorated[key]);
 }
 
 function getProps(name: keyof typeof propsDecorators, props: any, ...fnArgs: any[]) {

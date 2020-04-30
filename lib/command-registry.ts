@@ -1,9 +1,6 @@
-import {remote} from 'electron';
-import {HyperDispatch} from './hyper';
+import {ipcRenderer} from 'electron';
+import {HyperDispatch, pluginsMain} from './hyper';
 import {closeSearch} from './actions/sessions';
-// TODO: Should be updates to new async API https://medium.com/@nornagon/electrons-remote-module-considered-harmful-70d69500f31
-
-const {getDecoratedKeymaps} = remote.require('./plugins') as typeof import('../app/plugins');
 
 let commands: Record<string, (event: any, dispatch: HyperDispatch) => void> = {
   'editor:search-close': (e, dispatch) => {
@@ -11,8 +8,8 @@ let commands: Record<string, (event: any, dispatch: HyperDispatch) => void> = {
   }
 };
 
-export const getRegisteredKeys = () => {
-  const keymaps = getDecoratedKeymaps();
+export const getRegisteredKeys = async () => {
+  const keymaps = (await ipcRenderer.invoke('getDecoratedKeymaps')) as ReturnType<pluginsMain['getDecoratedKeymaps']>;
 
   return Object.keys(keymaps).reduce((result: Record<string, string>, actionName) => {
     const commandKeys = keymaps[actionName];

@@ -48,15 +48,17 @@ const fetchFileData = (configData: configOptions) => {
 };
 
 // initialize config
-store_.dispatch(loadConfig(config.getConfig()));
-fetchFileData(config.getConfig());
+(async () => {
+  store_.dispatch(loadConfig(await config.getConfig()));
+  fetchFileData(await config.getConfig());
+})();
 
-config.subscribe(() => {
-  const configInfo = config.getConfig();
+config.subscribe(async () => {
+  const configInfo = await config.getConfig();
   configInfo.bellSound = store_.getState().ui.bellSound;
   // The only async part of the config is the bellSound so we will check if the bellSoundURL
   // has changed to determine if we should re-read this file and dispatch an update to the config
-  if (store_.getState().ui.bellSoundURL !== config.getConfig().bellSoundURL) {
+  if (store_.getState().ui.bellSoundURL !== (await config.getConfig()).bellSoundURL) {
     fetchFileData(configInfo);
   } else {
     // No change in the bellSoundURL so continue with a normal reloadConfig, reusing the value
@@ -238,7 +240,7 @@ const app = render(
   document.getElementById('mount')
 );
 
-rpc.on('reload', () => {
-  plugins.reload();
+rpc.on('reload', async () => {
+  await plugins.reload();
   forceUpdate(app);
 });

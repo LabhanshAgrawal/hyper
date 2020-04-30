@@ -20,3 +20,17 @@ export function keys(imm: Record<string, any>) {
 export const ObjectTypedKeys = <T>(obj: T) => {
   return Object.keys(obj) as (keyof T)[];
 };
+
+export const emptyArrays = (x: any) => {
+  if (Array.isArray(x)) {
+    while (x.length > 0) {
+      x.pop();
+    }
+  } else if (typeof x === 'object') {
+    for (const key in x) {
+      if (Object.prototype.hasOwnProperty.call(x, key)) {
+        emptyArrays(x[key]);
+      }
+    }
+  }
+};

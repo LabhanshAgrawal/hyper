@@ -365,3 +365,5 @@ export type Mutable<T> = T extends Immutable<infer U> ? (Exclude<U, T> extends n
 export type immutableRecord<T> = {[k in keyof T]: Immutable<T[k]>};
 
 export type Assignable<T, U> = {[k in keyof U]: k extends keyof T ? T[k] : U[k]} & Partial<T>;
+
+export type pluginsMain = typeof import('../app/plugins');
