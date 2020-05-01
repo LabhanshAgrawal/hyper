@@ -4194,10 +4194,10 @@ globule@^1.0.0:
     lodash "~4.17.12"
     minimatch "~3.0.2"
 
-got@11.0.0:
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/got/-/got-11.0.0.tgz#a5a131a55752309157bb32e1365a6a7f2a8c15b8"
-  integrity sha512-6PjDdCa2yPMuxhoBp6TIdHUm5gv8rBEfr055vJG9CqznZBw4rFEwNifI5JxfLhu41xVHRrFsVtseFOjrcIy1/w==
+got@11.0.3:
+  version "11.0.3"
+  resolved "https://registry.yarnpkg.com/got/-/got-11.0.3.tgz#1df7678f9768ad3991c03b3efc304795eb29fdad"
+  integrity sha512-VmU5xQ5tWIc2SudsZQ6ewOwPxXxJ4pMS3SJoqP5SK8oBKxnZ3OgAhLZcPMDYeOW0RKIL6HF/vHtibWDLSa3rvw==
   dependencies:
     "@sindresorhus/is" "^2.1.0"
     "@szmarczak/http-timer" "^4.0.0"
@@ -4207,7 +4207,7 @@ got@11.0.0:
     cacheable-request "^7.0.1"
     decompress-response "^5.0.0"
     get-stream "^5.0.0"
-    http2-wrapper "^1.0.0-beta.4.3"
+    http2-wrapper "^1.0.0-beta.4.4"
     lowercase-keys "^2.0.0"
     p-cancelable "^2.0.0"
     responselike "^2.0.0"
@@ -4393,10 +4393,10 @@ http-signature@~1.2.0:
     jsprim "^1.2.2"
     sshpk "^1.7.0"
 
-http2-wrapper@^1.0.0-beta.4.3:
-  version "1.0.0-beta.4.3"
-  resolved "https://registry.yarnpkg.com/http2-wrapper/-/http2-wrapper-1.0.0-beta.4.3.tgz#85b499cfada6a5b2c22f08190716c7dcc8a0bc81"
-  integrity sha512-r0Rr4+g7RF0RHBuArwOYHvFFcD2GchoXk4Q331K4h1IQ0kXqowXNBR0n71jQGzav2GHg9BnNYMC1dFxAr66rIg==
+http2-wrapper@^1.0.0-beta.4.4:
+  version "1.0.0-beta.4.5"
+  resolved "https://registry.yarnpkg.com/http2-wrapper/-/http2-wrapper-1.0.0-beta.4.5.tgz#ac8e8f1cbf4aa79e3274c89e954d18697ab31e85"
+  integrity sha512-hRoAcIg26mAenbhZH4yQKpHzdbjHGM2a8JCtGJUIwFtqP82IeuMcmJwXHD6eFkILxDp0AyvaRMNrnV4aSaq9pg==
   dependencies:
     quick-lru "^5.0.0"
     resolve-alpn "^1.0.0"
