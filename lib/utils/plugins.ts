@@ -39,11 +39,15 @@ let modules: hyperPlugin[];
 let decorated: Record<string, React.ComponentClass<any>> = {};
 
 // various caches extracted of the plugin methods
+type connector = {
+  state: ((<P>(state: HyperState, stateProps: P) => P) & {_pluginName: string})[];
+  dispatch: ((<P>(dispatch: HyperDispatch, dispatchProps: P) => P) & {_pluginName: string})[];
+};
 let connectors: {
-  Terms: {state: any[]; dispatch: any[]};
-  Header: {state: any[]; dispatch: any[]};
-  Hyper: {state: any[]; dispatch: any[]};
-  Notifications: {state: any[]; dispatch: any[]};
+  Terms: connector;
+  Header: connector;
+  Hyper: connector;
+  Notifications: connector;
 };
 let middlewares: Middleware[];
 let uiReducers: IUiReducer[];
@@ -94,9 +98,9 @@ function getDecorated<P>(parent: React.ComponentType<P>, name: string): React.Co
     let class_ = exposeDecorated(parent);
     (class_ as any).displayName = `_exposeDecorated(${name})`;
 
-    modules.forEach((mod: any) => {
-      const method = 'decorate' + name;
-      const fn: Function & {_pluginName: string} = mod[method];
+    modules.forEach((mod) => {
+      const method = ('decorate' + name) as keyof hyperPlugin;
+      const fn = mod[method];
 
       if (fn) {
         let class__;
@@ -256,7 +260,7 @@ const loadModules = () => {
     reduceTermGroups: termGroupsReducers
   };
 
-  const loadedPlugins = plugins.getLoadedPluginVersions().map((plugin: any) => plugin.name);
+  const loadedPlugins = plugins.getLoadedPluginVersions().map((plugin) => plugin.name);
   modules = paths.plugins
     .concat(paths.localPlugins)
     .filter((plugin) => loadedPlugins.indexOf(basename(plugin)) !== -1)
@@ -457,7 +461,7 @@ export function connect<stateProps, dispatchProps>(
       (state) => {
         let ret = stateFn(state);
         connectors[name].state.forEach((fn) => {
-          let ret_;
+          let ret_: stateProps;
 
           try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -483,7 +487,7 @@ export function connect<stateProps, dispatchProps>(
       (dispatch) => {
         let ret = dispatchFn(dispatch);
         connectors[name].dispatch.forEach((fn) => {
-          let ret_;
+          let ret_: dispatchProps;
 
           try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
