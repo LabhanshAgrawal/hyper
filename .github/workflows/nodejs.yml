@@ -28,7 +28,7 @@ jobs:
           cp build/canary.ico build/icon.ico
           cp build/canary.icns build/icon.icns
       - name: Build
-        run: yarn run dist
+        run: yarn run dist --publish=always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get macOS Artifact Names
@@ -63,7 +63,7 @@ jobs:
           cp build/canary.ico build/icon.ico
           cp build/canary.icns build/icon.icns
       - name: Build
-        run: yarn run dist
+        run: yarn run dist --publish=always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get Linux Artifact Names
@@ -119,7 +119,7 @@ jobs:
           Copy-Item .\build\canary.ico .\build\icon.ico
           Copy-Item .\build\canary.icns .\build\icon.icns
       - name: Build
-        run: yarn run dist
+        run: yarn run dist --publish=always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get Windows Artifact Names
