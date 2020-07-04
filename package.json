@@ -15,7 +15,8 @@
     "postinstall": "webpack --config-name hyper-app && electron-builder install-app-deps && yarn run rebuild-node-pty && cpy --cwd=target --parents \"node_modules/**/*\" \"../app/\" && husky install",
     "rebuild-node-pty": "electron-rebuild -f -o node-pty -m target",
     "dist": "yarn run build && cross-env BABEL_ENV=production babel target/renderer/bundle.js --out-file target/renderer/bundle.js --no-comments --minified && electron-builder",
-    "clean": "node ./bin/rimraf-standalone.js node_modules && node ./bin/rimraf-standalone.js ./app/node_modules && node ./bin/rimraf-standalone.js ./app/renderer"
+    "clean": "node ./bin/rimraf-standalone.js node_modules && node ./bin/rimraf-standalone.js ./app/node_modules && node ./bin/rimraf-standalone.js ./app/renderer",
+    "generate-schema": "typescript-json-schema ./lib/config.d.ts parsedConfig -o ./lib/schema.json --required"
   },
   "license": "MIT",
   "author": {
@@ -49,6 +50,7 @@
     "shebang-loader": "0.0.1",
     "styled-jsx": "3.4.4",
     "stylis": "3.5.4",
+    "typescript-json-schema": "0.49.0",
     "uuid": "8.3.2",
     "webpack-cli": "4.7.2",
     "xterm": "^4.13.0",
