@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - canary
+      - linux_spectron
   pull_request:
 defaults:
   run:
@@ -46,8 +47,15 @@ jobs:
       - name: Test Spectron
         if: runner.os != 'Linux'
         run: yarn run test:spectron
+      - name: Test Spectron
+        if: runner.os == 'Linux'
+        # uses: GabrielBB/xvfb-action@v1.4
+        # with:
+        #   working-directory: .
+        #   run: yarn run test:spectron
+        run: |
+          xvfb-run --auto-servernum yarn run test:spectron
       - name: Archive Spectron test screenshot
-        if: runner.os != 'Linux'
         uses: actions/upload-artifact@v2
         with:
           name: spectron
