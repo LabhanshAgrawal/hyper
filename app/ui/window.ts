@@ -40,7 +40,8 @@ export function newWindow(
       nodeIntegration: true,
       navigateOnDragDrop: true,
       enableRemoteModule: true,
-      contextIsolation: false
+      contextIsolation: false,
+      enableBlinkFeatures: 'FontAccess'
     },
     ...options_
   };
