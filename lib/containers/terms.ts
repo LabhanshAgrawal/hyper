@@ -80,5 +80,3 @@ const mapDispatchToProps = (dispatch: HyperDispatch) => {
 const TermsContainer = connect(mapStateToProps, mapDispatchToProps, null, {forwardRef: true})(Terms, 'Terms');
 
 export default TermsContainer;
-
-export type TermsConnectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;

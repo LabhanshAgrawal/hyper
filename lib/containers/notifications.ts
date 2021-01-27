@@ -93,5 +93,3 @@ const mapDispatchToProps = (dispatch: HyperDispatch) => {
 const NotificationsContainer = connect(mapStateToProps, mapDispatchToProps, null)(Notifications, 'Notifications');
 
 export default NotificationsContainer;
-
-export type NotificationsConnectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;

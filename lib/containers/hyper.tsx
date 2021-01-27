@@ -170,5 +170,3 @@ const mapDispatchToProps = (dispatch: HyperDispatch) => {
 const HyperContainer = connect(mapStateToProps, mapDispatchToProps, null, {forwardRef: true})(Hyper, 'Hyper');
 
 export default HyperContainer;
-
-export type HyperConnectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;

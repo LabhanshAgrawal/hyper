@@ -75,5 +75,3 @@ const mapDispatchToProps = (dispatch: HyperDispatch) => {
 };
 
 export const HeaderContainer = connect(mapStateToProps, mapDispatchToProps, null)(Header, 'Header');
-
-export type HeaderConnectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;

@@ -1,3 +1,6 @@
+import {BrowserWindow, App} from 'electron';
+import {Middleware, Reducer} from 'redux';
+import {configOptions} from './config';
 import {ITermState, uiState, sessionState, HyperActions} from './hyper';
 
 export type ITermGroupReducer = Reducer<ITermState, HyperActions>;
@@ -5,11 +8,6 @@ export type ITermGroupReducer = Reducer<ITermState, HyperActions>;
 export type IUiReducer = Reducer<uiState, HyperActions>;
 
 export type ISessionReducer = Reducer<sessionState, HyperActions>;
-
-import {configOptions} from './config';
-import {BrowserWindow, App} from 'electron';
-
-import {Middleware, Reducer} from 'redux';
 
 export type hyperPlugin = {
   getTabProps: any;

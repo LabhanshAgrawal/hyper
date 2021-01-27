@@ -1,13 +1,4 @@
-import {Immutable} from 'seamless-immutable';
-import Client from '../lib/utils/rpc';
-
-declare global {
-  interface Window {
-    __rpcId: string;
-    rpc: Client;
-    focusActiveTerm: (uid?: string) => void;
-  }
-}
+import {Immutable, ImmutableArray, ImmutableObject} from 'seamless-immutable';
 
 export type ITermGroup = Immutable<{
   uid: string;
@@ -150,17 +141,114 @@ type extensionProps = Partial<{
   customInnerChildren: ReactChild | ReactChild[];
 }>;
 
-import {HeaderConnectedProps} from '../lib/containers/header';
+type HeaderConnectedProps = {
+  isMac: boolean;
+  tabs: ITab[];
+  activeMarkers: ImmutableObject<Record<string, boolean>>;
+  borderColor: string;
+  backgroundColor: string;
+  maximized: boolean;
+  fullScreen: boolean;
+  showHamburgerMenu: boolean | '';
+  showWindowControls: string;
+} & {
+  onCloseTab: (i: string) => void;
+  onChangeTab: (i: string) => void;
+  maximize: () => void;
+  unmaximize: () => void;
+  openHamburgerMenu: (coordinates: {x: number; y: number}) => void;
+  minimize: () => void;
+  close: () => void;
+};
 export type HeaderProps = HeaderConnectedProps & extensionProps;
 
-import {HyperConnectedProps} from '../lib/containers/hyper';
+type HyperConnectedProps = {
+  isMac: boolean;
+  customCSS: string;
+  uiFontFamily: string;
+  borderColor: string;
+  activeSession: string | null;
+  backgroundColor: string;
+  maximized: boolean;
+  fullScreen: boolean;
+  lastConfigUpdate: number | null;
+} & {
+  execCommand: (command: string, fn: (e: any, dispatch: HyperDispatch) => void, e: any) => void;
+};
 export type HyperProps = HyperConnectedProps & extensionProps;
 
-import {NotificationsConnectedProps} from '../lib/containers/notifications';
+type NotificationsConnectedProps = Partial<{
+  fontShowing: boolean;
+  fontSize: number;
+  fontText: string;
+  resizeShowing: boolean;
+  cols: number | null;
+  rows: number | null;
+  updateShowing: boolean;
+  updateVersion: string | null;
+  updateNote: string | null;
+  updateReleaseUrl: string | null;
+  updateCanInstall: boolean | null;
+  messageShowing: boolean;
+  messageText: string | null;
+  messageURL: string | null;
+  messageDismissable: boolean | null;
+}> & {
+  onDismissFont: () => void;
+  onDismissResize: () => void;
+  onDismissUpdate: () => void;
+  onDismissMessage: () => void;
+  onUpdateInstall: () => void;
+};
 export type NotificationsProps = NotificationsConnectedProps & extensionProps;
 
-import Terms from '../lib/components/terms';
-import {TermsConnectedProps} from '../lib/containers/terms';
+type Terms = React.Component<TermsProps>;
+type TermsConnectedProps = {
+  sessions: ImmutableObject<Record<string, session>>;
+  cols: number | null;
+  rows: number | null;
+  scrollback: number;
+  termGroups: ImmutableObject<ITermGroup>[];
+  activeRootGroup: string | null;
+  activeSession: string | null;
+  customCSS: string;
+  write: string;
+  fontSize: number;
+  fontFamily: string;
+  fontWeight: FontWeight;
+  fontWeightBold: FontWeight;
+  lineHeight: number;
+  letterSpacing: number;
+  uiFontFamily: string;
+  fontSmoothing: string;
+  padding: string;
+  cursorColor: string;
+  cursorAccentColor: string;
+  cursorShape: cursorShapes;
+  cursorBlink: boolean;
+  borderColor: string;
+  selectionColor: string;
+  colors: ImmutableObject<ColorMap>;
+  foregroundColor: string;
+  backgroundColor: string;
+  bell: string;
+  bellSoundURL: string | null;
+  bellSound: string | null;
+  copyOnSelect: boolean;
+  modifierKeys: ImmutableObject<{altIsMeta: boolean; cmdIsMeta: boolean}>;
+  quickEdit: boolean;
+  webGLRenderer: boolean;
+  webLinksActivationKey: string;
+  macOptionSelectionMode: string;
+  disableLigatures: boolean;
+} & {
+  onData(uid: string, data: any): void;
+  onTitle(uid: string, title: string): void;
+  onResize(uid: string, cols: number, rows: number): void;
+  onActive(uid: string): void;
+  toggleSearch(uid: string): void;
+  onContextMenu(uid: string, selection: any): void;
+};
 export type TermsProps = TermsConnectedProps & extensionProps & {ref_: (terms: Terms | null) => void};
 
 export type StyleSheetProps = {
@@ -218,7 +306,7 @@ export type SplitPaneProps = {
   sizes?: Immutable<number[]> | null;
 };
 
-import Term from '../lib/components/term';
+type Term = React.PureComponent<TermProps>;
 
 export type TermGroupOwnProps = {
   cursorAccentColor?: string;
@@ -266,7 +354,11 @@ export type TermGroupOwnProps = {
   | 'webLinksActivationKey'
 >;
 
-import {TermGroupConnectedProps} from '../lib/components/term-group';
+type TermGroupConnectedProps = {
+  childGroups: ImmutableArray<ImmutableObject<ITermGroup>>;
+} & {
+  onTermGroupResize(splitSizes: number[]): void;
+};
 export type TermGroupProps = TermGroupConnectedProps & TermGroupOwnProps;
 
 export type SearchBoxProps = {
@@ -278,6 +370,7 @@ export type SearchBoxProps = {
 
 import {FitAddon} from 'xterm-addon-fit';
 import {SearchAddon} from 'xterm-addon-search';
+import {Dispatch} from 'redux';
 export type TermProps = {
   backgroundColor: string;
   bell: string;

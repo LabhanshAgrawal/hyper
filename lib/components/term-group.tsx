@@ -148,5 +148,3 @@ const TermGroup = connect(mapStateToProps, mapDispatchToProps, null, {forwardRef
 const DecoratedTermGroup = decorate(TermGroup, 'TermGroup');
 
 export default TermGroup;
-
-export type TermGroupConnectedProps = ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
