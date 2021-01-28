@@ -3,7 +3,7 @@ import {remote} from 'electron';
 
 import Immutable, {Immutable as ImmutableType} from 'seamless-immutable';
 import {decorateUIReducer} from '../utils/plugins';
-import {CONFIG_LOAD, CONFIG_RELOAD} from '../constants/config';
+import {CONFIG_LOAD, CONFIG_RELOAD} from '../../typings/constants/config';
 import {
   UI_FONT_SIZE_SET,
   UI_FONT_SIZE_RESET,
@@ -13,8 +13,8 @@ import {
   UI_WINDOW_GEOMETRY_CHANGED,
   UI_ENTER_FULLSCREEN,
   UI_LEAVE_FULLSCREEN
-} from '../constants/ui';
-import {NOTIFICATION_MESSAGE, NOTIFICATION_DISMISS} from '../constants/notifications';
+} from '../../typings/constants/ui';
+import {NOTIFICATION_MESSAGE, NOTIFICATION_DISMISS} from '../../typings/constants/notifications';
 import {
   SESSION_ADD,
   SESSION_RESIZE,
@@ -22,9 +22,9 @@ import {
   SESSION_PTY_EXIT,
   SESSION_SET_ACTIVE,
   SESSION_SET_CWD
-} from '../constants/sessions';
-import {UPDATE_AVAILABLE} from '../constants/updater';
-import {uiState, Mutable, IUiReducer} from '../hyper';
+} from '../../typings/constants/sessions';
+import {UPDATE_AVAILABLE} from '../../typings/constants/updater';
+import {uiState, Mutable, IUiReducer} from '../../typings/hyper';
 
 const allowedCursorShapes = new Set(['BEAM', 'BLOCK', 'UNDERLINE']);
 const allowedCursorBlinkValues = new Set([true, false]);

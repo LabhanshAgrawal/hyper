@@ -3,7 +3,7 @@ import {sync as mkdirpSync} from 'mkdirp';
 import {defaultCfg, cfgPath, legacyCfgPath, plugs, defaultPlatformKeyPath} from './paths';
 import {_init, _extractDefault} from './init';
 import notify from '../notify';
-import {rawConfig} from '../../lib/config';
+import {rawConfig} from '../../typings/config';
 
 let defaultConfig: rawConfig;
 

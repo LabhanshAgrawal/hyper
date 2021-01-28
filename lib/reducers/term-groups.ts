@@ -1,10 +1,10 @@
 import {v4 as uuidv4} from 'uuid';
 import Immutable, {Immutable as ImmutableType} from 'seamless-immutable';
-import {TERM_GROUP_EXIT, TERM_GROUP_RESIZE} from '../constants/term-groups';
-import {SESSION_ADD, SESSION_SET_ACTIVE, SessionAddAction} from '../constants/sessions';
+import {TERM_GROUP_EXIT, TERM_GROUP_RESIZE} from '../../typings/constants/term-groups';
+import {SESSION_ADD, SESSION_SET_ACTIVE, SessionAddAction} from '../../typings/constants/sessions';
 import findBySession from '../utils/term-groups';
 import {decorateTermGroupsReducer} from '../utils/plugins';
-import {ITermGroup, ITermState, ITermGroups, ITermGroupReducer, Mutable} from '../hyper';
+import {ITermGroup, ITermState, ITermGroups, ITermGroupReducer, Mutable} from '../../typings/hyper';
 
 const MIN_SIZE = 0.05;
 const initialState: ITermState = Immutable<Mutable<ITermState>>({

@@ -12,8 +12,8 @@ import {
   SESSION_SET_CWD,
   SESSION_SEARCH,
   SESSION_SEARCH_CLOSE
-} from '../constants/sessions';
-import {sessionState, session, Mutable, ISessionReducer} from '../hyper';
+} from '../../typings/constants/sessions';
+import {sessionState, session, Mutable, ISessionReducer} from '../../typings/hyper';
 
 const initialState: sessionState = Immutable<Mutable<sessionState>>({
   sessions: {},

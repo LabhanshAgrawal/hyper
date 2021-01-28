@@ -1,5 +1,5 @@
 import React from 'react';
-import {TabProps} from '../hyper';
+import {TabProps} from '../../typings/hyper';
 
 export default class Tab extends React.PureComponent<TabProps> {
   constructor(props: TabProps) {

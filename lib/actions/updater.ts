@@ -1,6 +1,6 @@
-import {UPDATE_INSTALL, UPDATE_AVAILABLE} from '../constants/updater';
+import {UPDATE_INSTALL, UPDATE_AVAILABLE} from '../../typings/constants/updater';
 import rpc from '../rpc';
-import {HyperActions} from '../hyper';
+import {HyperActions} from '../../typings/hyper';
 
 export function installUpdate(): HyperActions {
   return {

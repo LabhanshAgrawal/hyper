@@ -1,5 +1,5 @@
 import {Immutable} from 'seamless-immutable';
-import Client from './utils/rpc';
+import Client from '../lib/utils/rpc';
 
 declare global {
   interface Window {
@@ -113,36 +113,6 @@ export type sessionState = Immutable<{
   write?: any;
 }>;
 
-export type ITermGroupReducer = Reducer<ITermState, HyperActions>;
-
-export type IUiReducer = Reducer<uiState, HyperActions>;
-
-export type ISessionReducer = Reducer<sessionState, HyperActions>;
-
-import {Middleware, Reducer} from 'redux';
-export type hyperPlugin = {
-  getTabProps: any;
-  getTabsProps: any;
-  getTermGroupProps: any;
-  getTermProps: any;
-  mapHeaderDispatch: any;
-  mapHyperDispatch: any;
-  mapHyperTermDispatch: any;
-  mapNotificationsDispatch: any;
-  mapTermsDispatch: any;
-  mapHeaderState: any;
-  mapHyperState: any;
-  mapHyperTermState: any;
-  mapNotificationsState: any;
-  mapTermsState: any;
-  middleware: Middleware;
-  onRendererUnload: any;
-  onRendererWindow: any;
-  reduceSessions: ISessionReducer;
-  reduceTermGroups: ITermGroupReducer;
-  reduceUI: IUiReducer;
-};
-
 export type HyperState = {
   ui: uiState;
   sessions: sessionState;
@@ -169,7 +139,7 @@ export type HyperActions = (
   | TabActions
 ) & {effect?: () => void};
 
-import configureStore from './store/configure-store';
+import configureStore from '../lib/store/configure-store';
 export type HyperDispatch = ReturnType<typeof configureStore>['dispatch'];
 
 import {ReactChild} from 'react';
@@ -180,17 +150,17 @@ type extensionProps = Partial<{
   customInnerChildren: ReactChild | ReactChild[];
 }>;
 
-import {HeaderConnectedProps} from './containers/header';
+import {HeaderConnectedProps} from '../lib/containers/header';
 export type HeaderProps = HeaderConnectedProps & extensionProps;
 
-import {HyperConnectedProps} from './containers/hyper';
+import {HyperConnectedProps} from '../lib/containers/hyper';
 export type HyperProps = HyperConnectedProps & extensionProps;
 
-import {NotificationsConnectedProps} from './containers/notifications';
+import {NotificationsConnectedProps} from '../lib/containers/notifications';
 export type NotificationsProps = NotificationsConnectedProps & extensionProps;
 
-import Terms from './components/terms';
-import {TermsConnectedProps} from './containers/terms';
+import Terms from '../lib/components/terms';
+import {TermsConnectedProps} from '../lib/containers/terms';
 export type TermsProps = TermsConnectedProps & extensionProps & {ref_: (terms: Terms | null) => void};
 
 export type StyleSheetProps = {
@@ -248,7 +218,7 @@ export type SplitPaneProps = {
   sizes?: Immutable<number[]> | null;
 };
 
-import Term from './components/term';
+import Term from '../lib/components/term';
 
 export type TermGroupOwnProps = {
   cursorAccentColor?: string;
@@ -296,7 +266,7 @@ export type TermGroupOwnProps = {
   | 'webLinksActivationKey'
 >;
 
-import {TermGroupConnectedProps} from './components/term-group';
+import {TermGroupConnectedProps} from '../lib/components/term-group';
 export type TermGroupProps = TermGroupConnectedProps & TermGroupOwnProps;
 
 export type SearchBoxProps = {

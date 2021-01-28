@@ -4,7 +4,7 @@ import rootReducer from '../reducers/index';
 import effects from '../utils/effects';
 import * as plugins from '../utils/plugins';
 import writeMiddleware from './write-middleware';
-import {HyperState, HyperActions} from '../hyper';
+import {HyperState, HyperActions} from '../../typings/hyper';
 const thunk: ThunkMiddleware<HyperState, HyperActions> = _thunk;
 
 export default () =>

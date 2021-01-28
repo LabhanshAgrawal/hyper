@@ -1,5 +1,5 @@
 import {remote} from 'electron';
-import {HyperDispatch} from './hyper';
+import {HyperDispatch} from '../typings/hyper';
 import {closeSearch} from './actions/sessions';
 // TODO: Should be updates to new async API https://medium.com/@nornagon/electrons-remote-module-considered-harmful-70d69500f31
 

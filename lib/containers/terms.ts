@@ -4,7 +4,7 @@ import {resizeSession, sendSessionData, setSessionXtermTitle, setActiveSession, 
 
 import {openContextMenu} from '../actions/ui';
 import {getRootGroups} from '../selectors';
-import {HyperState, HyperDispatch} from '../hyper';
+import {HyperState, HyperDispatch} from '../../typings/hyper';
 
 const mapStateToProps = (state: HyperState) => {
   const {sessions} = state.sessions;

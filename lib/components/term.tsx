@@ -11,7 +11,7 @@ import Color from 'color';
 import terms from '../terms';
 import processClipboard from '../utils/paste';
 import SearchBox from './searchBox';
-import {TermProps} from '../hyper';
+import {TermProps} from '../../typings/hyper';
 import {ObjectTypedKeys} from '../utils/object';
 
 const isWindows = ['Windows', 'Win16', 'Win32', 'WinCE'].includes(navigator.platform);

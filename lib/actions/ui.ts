@@ -24,11 +24,11 @@ import {
   UI_OPEN_SSH_URL,
   UI_CONTEXTMENU_OPEN,
   UI_COMMAND_EXEC
-} from '../constants/ui';
+} from '../../typings/constants/ui';
 
 import {setActiveGroup} from './term-groups';
 import parseUrl from 'parse-url';
-import {HyperState, HyperDispatch, HyperActions, ITermGroups} from '../hyper';
+import {HyperState, HyperDispatch, HyperActions, ITermGroups} from '../../typings/hyper';
 import {stat, Stats} from 'fs';
 
 export function openContextMenu(uid: string, selection: any) {

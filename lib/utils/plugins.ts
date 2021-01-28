@@ -13,11 +13,8 @@ import React, {PureComponent} from 'react';
 import ReactDOM from 'react-dom';
 import Notification from '../components/notification';
 import notify from './notify';
+import {hyperPlugin, IUiReducer, ISessionReducer, ITermGroupReducer} from '../../typings/plugin';
 import {
-  hyperPlugin,
-  IUiReducer,
-  ISessionReducer,
-  ITermGroupReducer,
   HyperState,
   HyperDispatch,
   TabProps,
@@ -25,7 +22,7 @@ import {
   TermGroupOwnProps,
   TermProps,
   Assignable
-} from '../hyper';
+} from '../../typings/hyper';
 import {Middleware} from 'redux';
 import {ObjectTypedKeys} from './object';
 
@@ -39,11 +36,15 @@ let modules: hyperPlugin[];
 let decorated: Record<string, React.ComponentClass<any>> = {};
 
 // various caches extracted of the plugin methods
+type connector = {
+  state: ((<P>(state: HyperState, stateProps: P) => P) & {_pluginName: string})[];
+  dispatch: ((<P>(dispatch: HyperDispatch, dispatchProps: P) => P) & {_pluginName: string})[];
+};
 let connectors: {
-  Terms: {state: any[]; dispatch: any[]};
-  Header: {state: any[]; dispatch: any[]};
-  Hyper: {state: any[]; dispatch: any[]};
-  Notifications: {state: any[]; dispatch: any[]};
+  Terms: connector;
+  Header: connector;
+  Hyper: connector;
+  Notifications: connector;
 };
 let middlewares: Middleware[];
 let uiReducers: IUiReducer[];
@@ -94,9 +95,9 @@ function getDecorated<P>(parent: React.ComponentType<P>, name: string): React.Co
     let class_ = exposeDecorated(parent);
     (class_ as any).displayName = `_exposeDecorated(${name})`;
 
-    modules.forEach((mod: any) => {
-      const method = 'decorate' + name;
-      const fn: Function & {_pluginName: string} = mod[method];
+    modules.forEach((mod) => {
+      const method = ('decorate' + name) as keyof hyperPlugin;
+      const fn = mod[method];
 
       if (fn) {
         let class__;
@@ -256,14 +257,14 @@ const loadModules = () => {
     reduceTermGroups: termGroupsReducers
   };
 
-  const loadedPlugins = plugins.getLoadedPluginVersions().map((plugin: any) => plugin.name);
+  const loadedPlugins = plugins.getLoadedPluginVersions().map((plugin) => plugin.name);
   modules = paths.plugins
     .concat(paths.localPlugins)
     .filter((plugin) => loadedPlugins.indexOf(basename(plugin)) !== -1)
     .map((path) => {
       let mod: hyperPlugin;
       const pluginName = getPluginName(path);
-      const pluginVersion = getPluginVersion(path);
+      const pluginVersion = getPluginVersion(path)!;
 
       // window.require allows us to ensure this doesn't get
       // in the way of our build
@@ -457,7 +458,7 @@ export function connect<stateProps, dispatchProps>(
       (state) => {
         let ret = stateFn(state);
         connectors[name].state.forEach((fn) => {
-          let ret_;
+          let ret_: stateProps;
 
           try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -483,7 +484,7 @@ export function connect<stateProps, dispatchProps>(
       (dispatch) => {
         let ret = dispatchFn(dispatch);
         connectors[name].dispatch.forEach((fn) => {
-          let ret_;
+          let ret_: dispatchProps;
 
           try {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call

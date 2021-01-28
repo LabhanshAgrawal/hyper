@@ -1,5 +1,5 @@
 import React from 'react';
-import {SearchBoxProps} from '../hyper';
+import {SearchBoxProps} from '../../typings/hyper';
 
 const searchBoxStyling: React.CSSProperties = {
   float: 'right',

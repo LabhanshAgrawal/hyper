@@ -14,7 +14,8 @@ import {availableExtensions} from './plugins/extensions';
 import {install} from './plugins/install';
 import {plugs} from './config/paths';
 import mapKeys from './utils/map-keys';
-import {configOptions} from '../lib/config';
+import {configOptions} from '../typings/config';
+import {hyperPlugin} from '../typings/plugin';
 
 // local storage
 const cache = new Config();
@@ -30,7 +31,7 @@ let paths = getPaths();
 let id = getId(plugins);
 let modules = requirePlugins();
 
-function getId(plugins_: any) {
+function getId(plugins_: {plugins: string[]; localPlugins: string[]}) {
   return JSON.stringify(plugins_);
 }
 
@@ -270,11 +271,11 @@ export const getBasePaths = () => {
   return {path, localPath};
 };
 
-function requirePlugins(): any[] {
+function requirePlugins() {
   const {plugins: plugins_, localPlugins} = paths;
 
   const load = (path_: string) => {
-    let mod: any;
+    let mod: hyperPlugin;
     try {
       mod = require(path_);
       const exposed = mod && Object.keys(mod).some((key) => availableExtensions.has(key));
@@ -306,7 +307,7 @@ function requirePlugins(): any[] {
   return plugins_
     .map(load)
     .concat(localPlugins.map(load))
-    .filter((v) => Boolean(v));
+    .filter((v) => Boolean(v)) as hyperPlugin[];
 }
 
 export const onApp = (app_: App) => {

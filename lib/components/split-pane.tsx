@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import {SplitPaneProps} from '../hyper';
+import {SplitPaneProps} from '../../typings/hyper';
 
 export default class SplitPane extends React.PureComponent<SplitPaneProps, {dragging: boolean}> {
   dragPanePosition!: number;
