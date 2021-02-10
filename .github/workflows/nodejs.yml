@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - canary
+      - arm64_snap
   pull_request:
 defaults:
   run:
