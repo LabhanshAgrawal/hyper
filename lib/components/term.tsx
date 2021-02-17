@@ -1,7 +1,6 @@
 import React from 'react';
 import {Terminal, ITerminalOptions, IDisposable} from 'xterm';
 import {FitAddon} from 'xterm-addon-fit';
-import {WebLinksAddon} from 'xterm-addon-web-links';
 import {SearchAddon} from 'xterm-addon-search';
 import {WebglAddon} from 'xterm-addon-webgl';
 import {LigaturesAddon} from 'xterm-addon-ligatures';
@@ -13,6 +12,8 @@ import processClipboard from '../utils/paste';
 import SearchBox from './searchBox';
 import {TermProps} from '../hyper';
 import {ObjectTypedKeys} from '../utils/object';
+import {LinkProvider} from 'xterm-link-provider';
+import {FileURLMatcher, URLMatcher} from '../utils/link-matchers';
 
 const isWindows = ['Windows', 'Win16', 'Win32', 'WinCE'].includes(navigator.platform);
 
@@ -157,19 +158,26 @@ export default class Term extends React.PureComponent<TermProps> {
       this.term.attachCustomKeyEventHandler(this.keyboardHandler);
       this.term.loadAddon(this.fitAddon);
       this.term.loadAddon(this.searchAddon);
-      this.term.loadAddon(
-        new WebLinksAddon(
-          (event: MouseEvent | undefined, uri: string) => {
-            if (shallActivateWebLink(event)) void shell.openExternal(uri);
+      this.term.registerLinkProvider(
+        new LinkProvider(
+          this.term,
+          URLMatcher.regex,
+          (event, text) => {
+            if (shallActivateWebLink(event)) shell.openExternal(text);
           },
-          {
-            // prevent default electron link handling to allow selection, e.g. via double-click
-            willLinkActivate: (event: MouseEvent | undefined) => {
-              event?.preventDefault();
-              return shallActivateWebLink(event);
-            },
-            priority: Date.now()
-          }
+          {},
+          URLMatcher.matchIndex
+        )
+      );
+      this.term.registerLinkProvider(
+        new LinkProvider(
+          this.term,
+          FileURLMatcher.regex,
+          (event, text) => {
+            if (shallActivateWebLink(event)) shell.openExternal(text);
+          },
+          {},
+          FileURLMatcher.matchIndex
         )
       );
       this.term.open(this.termRef);
