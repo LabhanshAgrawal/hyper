@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - canary
+      - linux_spectron
   pull_request:
 defaults:
   run:
@@ -37,7 +38,7 @@ jobs:
         run: yarn run dist --publish=never
       - name: Build (push)
         if: github.event_name == 'push'
-        run: yarn run dist
+        run: yarn run dist --publish=never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.MAC_CERT_P12_BASE64 }}
@@ -47,8 +48,15 @@ jobs:
       - name: Test Spectron
         if: runner.os != 'Linux'
         run: yarn run test:spectron
+      - name: Test Spectron
+        if: runner.os == 'Linux'
+        # uses: GabrielBB/xvfb-action@v1.4
+        # with:
+        #   working-directory: .
+        #   run: yarn run test:spectron
+        run: |
+          xvfb-run --auto-servernum yarn run test:spectron
       - name: Archive Spectron test screenshot
-        if: runner.os != 'Linux'
         uses: actions/upload-artifact@v2
         with:
           name: spectron

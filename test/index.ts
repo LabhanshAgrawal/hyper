@@ -7,6 +7,7 @@ import fs from 'fs-extra';
 // Packages
 import test from 'ava';
 import {Application} from 'spectron';
+// import electron from 'electron';
 
 let app: Application;
 
@@ -30,9 +31,19 @@ test.before(async () => {
       throw new Error('Path to the built binary needs to be defined for this platform in test/index.js');
   }
 
+  // let pathToBinary = path.join(__dirname, '..', 'node_modules', '.bin', 'electron');
+  // if (process.platform === 'win32') pathToBinary += '.cmd';
+
   app = new Application({
     path: pathToBinary
+    //   ,args: ['--no-sandbox', path.join(__dirname, '../target')]
+    //   // chromeDriverArgs: ['--no-sandbox']
   });
+
+  // app = new Application({
+  //   path: electron as any,
+  //   args: [path.join(__dirname, '../target')]
+  // });
 
   await app.start();
 });
