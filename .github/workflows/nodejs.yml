@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
-        os: [macos-11.0, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
       fail-fast: false
     steps:
       - name: Checkout
@@ -33,6 +33,8 @@ jobs:
         run: |
           cp build/canary.ico build/icon.ico
           cp build/canary.icns build/icon.icns
+      - if: runner.os == 'Linux'
+        run: sudo snap install snapcraft --classic
       - name: Build (pr)
         if: github.event_name == 'pull_request'
         run: yarn run dist --publish=never
