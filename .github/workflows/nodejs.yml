@@ -52,7 +52,6 @@ jobs:
         with:
           name: spectron
           path: dist/tmp/*.png
-
       - name: Archive Build Artifacts
         uses: LabhanshAgrawal/upload-artifact@v3
         with:
