@@ -37,6 +37,7 @@ class Hyper extends React.PureComponent<HyperProps> {
   }
 
   handleFocusActive = (uid?: string) => {
+    console.log('focus called for', uid);
     const term = uid && this.terms.getTermByUid(uid);
     if (term) {
       term.focus();

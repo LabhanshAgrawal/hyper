@@ -9,7 +9,7 @@ import {basename} from 'path';
 // patching Module._load
 // so plugins can `require` them without needing their own version
 // https://github.com/vercel/hyper/issues/619
-import React, {PureComponent} from 'react';
+import React, {PureComponent, useState} from 'react';
 import ReactDOM from 'react-dom';
 import Notification from '../components/notification';
 import notify from './notify';
@@ -32,9 +32,11 @@ import {ObjectTypedKeys, emptyArrays} from './object';
 
 // `require`d modules
 const modules: hyperPlugin[] = [];
+const loadedPluginNames: string[] = [];
 
 // cache of decorated components
-const decorated: Record<string, React.ComponentClass<any>> = {};
+const decorated: Record<string, React.FC<any>> = {};
+const decoratedClasses: Record<string, React.ComponentClass<any>> = {};
 
 // various caches extracted of the plugin methods
 const connectors: {
@@ -85,43 +87,56 @@ function exposeDecorated<P extends Record<string, any>>(
   };
 }
 
-function getDecorated<P>(parent: React.ComponentType<P>, name: string): React.ComponentClass<P> {
+function getDecorated<P>(parent: React.ComponentType<P>, name: string): React.FC<P> {
   if (!decorated[name]) {
-    let class_ = exposeDecorated(parent);
+    const class_ = exposeDecorated(parent);
     (class_ as any).displayName = `_exposeDecorated(${name})`;
 
-    modules.forEach((mod: any) => {
-      const method = 'decorate' + name;
-      const fn: Function & {_pluginName: string} = mod[method];
+    const Comp = (props: P) => {
+      const [loadedPlugins, setLoadedPlugins] = useState('');
+      const [firstLoad, setFirstLoad] = useState(true);
+      const pluginNames = loadedPluginNames.join(',');
+      if (firstLoad || loadedPlugins !== pluginNames) {
+        setFirstLoad(false);
+        let class__ = class_;
+        modules.forEach((mod: any) => {
+          const method = 'decorate' + name;
+          const fn = mod[method];
 
-      if (fn) {
-        let class__;
+          if (fn) {
+            let class___;
 
-        try {
-          class__ = fn(class_, {React, PureComponent, Notification, notify});
-          class__.displayName = `${fn._pluginName}(${name})`;
-        } catch (err) {
-          notify(
-            'Plugin error',
-            `${fn._pluginName}: Error occurred in \`${method}\`. Check Developer Tools for details`,
-            {error: err}
-          );
-          return;
-        }
+            try {
+              class___ = fn(class__, {React, PureComponent, Notification, notify});
+              class___.displayName = `${fn._pluginName}(${name})`;
+            } catch (err) {
+              notify(
+                'Plugin error',
+                `${fn._pluginName}: Error occurred in \`${method}\`. Check Developer Tools for details`,
+                {error: err}
+              );
+              return;
+            }
 
-        if (!class__ || typeof class__.prototype.render !== 'function') {
-          notify(
-            'Plugin error',
-            `${fn._pluginName}: Invalid return value of \`${method}\`. No \`render\` method found. Please return a \`React.Component\`.`
-          );
-          return;
-        }
+            if (!class___ || typeof class___.prototype.render !== 'function') {
+              notify(
+                'Plugin error',
+                `${fn._pluginName}: Invalid return value of \`${method}\`. No \`render\` method found. Please return a \`React.Component\`.`
+              );
+              return;
+            }
 
-        class_ = class__;
+            class__ = class___;
+          }
+        });
+        decoratedClasses[name] = class__;
+        setLoadedPlugins(pluginNames);
       }
-    });
 
-    decorated[name] = class_;
+      return React.createElement(decoratedClasses[name], props);
+    };
+
+    decorated[name] = Comp;
   }
 
   return decorated[name];
@@ -231,6 +246,8 @@ const loadModules = async () => {
 
   const loadedPlugins = (await ipcRenderer.invoke('getLoadedPluginVersions')).map((plugin) => plugin.name);
   emptyArrays(modules);
+  emptyArrays(loadedPluginNames);
+  const loadedPluginNames_: string[] = [];
   const modules_ = paths.plugins
     .concat(paths.localPlugins)
     .filter((plugin) => loadedPlugins.indexOf(basename(plugin)) !== -1)
@@ -251,6 +268,8 @@ const loadModules = async () => {
         );
         return undefined;
       }
+
+      loadedPluginNames_.push(path);
 
       ObjectTypedKeys(mod).forEach((i) => {
         if (Object.hasOwnProperty.call(mod, i)) {
@@ -345,6 +364,7 @@ const loadModules = async () => {
     })
     .filter((mod): mod is hyperPlugin => Boolean(mod));
   modules.push(...modules_);
+  loadedPluginNames.push(...loadedPluginNames_);
 
   const deprecatedPlugins = await ipcRenderer.invoke('getDeprecatedConfig');
   Object.keys(deprecatedPlugins).forEach((name) => {
