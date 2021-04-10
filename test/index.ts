@@ -39,6 +39,7 @@ test.before(async () => {
 
 test.after(async () => {
   await new Promise((resolve) => setTimeout(resolve, 5000));
+  await app.browserWindow.maximize();
   await app.browserWindow.capturePage().then(async (imageBuffer) => {
     await fs.writeFile(`dist/tmp/${process.platform}_test.png`, imageBuffer);
   });
