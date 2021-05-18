@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - canary
+      - build
   pull_request:
 defaults:
   run:
