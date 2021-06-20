@@ -1,6 +1,7 @@
-import {app, Menu, BrowserWindow} from 'electron';
+import {app, Menu, BrowserWindow, BrowserView} from 'electron';
 import {openConfig, getConfig} from './config';
 import {updatePlugins} from './plugins';
+import {Server} from './rpc';
 import {installCLI} from './utils/cli-install';
 import * as systemContextMenu from './utils/system-context-menu';
 
@@ -132,7 +133,29 @@ const commands: Record<string, (focusedWindow?: BrowserWindow) => void> = {
     systemContextMenu.remove();
   },
   'window:toggleKeepOnTop': (focusedWindow) => {
-    focusedWindow?.setAlwaysOnTop(!focusedWindow.isAlwaysOnTop());
+    // focusedWindow?.setAlwaysOnTop(!focusedWindow.isAlwaysOnTop());
+    const view = new BrowserView({
+      webPreferences: {
+        nodeIntegration: true,
+        enableRemoteModule: true,
+        contextIsolation: false
+      }
+    });
+    new Server(view as any);
+    view.setAutoResize({height: true, width: true});
+    focusedWindow?.addBrowserView(view);
+    const b = focusedWindow!.getBounds()!;
+    view.setBounds({
+      x: Math.floor((b.width - 800) * Math.random()),
+      y: Math.floor((b.height - 500) * Math.random()),
+      width: 800,
+      height: 500
+    });
+    view.setBackgroundColor('black');
+    view.webContents.openDevTools();
+    void view.webContents.loadURL(`file://${__dirname}/index.html`).then(() => {
+      console.log('view loaded');
+    });
   }
 };
 

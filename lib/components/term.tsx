@@ -240,6 +240,7 @@ export default class Term extends React.PureComponent<TermProps> {
     });
 
     terms[this.props.uid] = this;
+    this.write('hello');
   }
 
   getTermDocument() {
